@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HalalCheck</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 340px;
+      min-height: 220px;
+      background: #0d0d1a;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px 12px;
+      background: #12122a;
+      border-bottom: 1px solid #1e1e3a;
+    }
+    .logo {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #166534, #15803d);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .header-text h1 { font-size: 16px; font-weight: 700; color: #f1f5f9; }
+    .header-text p  { font-size: 11px; color: #64748b; margin-top: 1px; }
+
+    /* ── Product chip ── */
+    .product-section {
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid #1e1e3a;
+    }
+    .product-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #475569; margin-bottom: 5px; }
+    .product-name {
+      background: #1e1e3a;
+      border: 1px solid #2d2d50;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .product-name.loading { color: #475569; font-style: italic; }
+
+    /* ── Result area ── */
+    .result-area { padding: 14px 16px; }
+
+    /* Loading spinner */
+    .spinner-wrap {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; padding: 24px 0;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #1e1e3a;
+      border-top-color: #22c55e;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-text { font-size: 13px; color: #64748b; }
+
+    /* Verdict card */
+    .verdict-card {
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      border: 1px solid transparent;
+      margin-bottom: 12px;
+    }
+    .verdict-card.green  { background: #052e16; border-color: #166534; }
+    .verdict-card.red    { background: #2d0a0a; border-color: #991b1b; }
+    .verdict-card.yellow { background: #1c1a03; border-color: #854d0e; }
+    .verdict-card.blue   { background: #071a30; border-color: #1e40af; }
+
+    .verdict-icon { font-size: 28px; margin-bottom: 6px; }
+    .verdict-label {
+      font-size: 18px; font-weight: 800;
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .verdict-card.green  .verdict-label { color: #4ade80; }
+    .verdict-card.red    .verdict-label { color: #f87171; }
+    .verdict-card.yellow .verdict-label { color: #facc15; }
+    .verdict-card.blue   .verdict-label { color: #60a5fa; }
+
+    /* Status badges */
+    .badges {
+      display: flex; gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: flex; align-items: center; gap: 5px;
+      background: #1a1a2e; border: 1px solid #2d2d50;
+      border-radius: 20px; padding: 5px 12px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge .dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .dot-green  { background: #22c55e; }
+    .dot-red    { background: #ef4444; }
+    .dot-yellow { background: #eab308; }
+    .dot-gray   { background: #64748b; }
+
+    /* Explanation */
+    .explanation {
+      background: #12122a;
+      border: 1px solid #1e1e3a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    /* Concerns */
+    .concerns-wrap { margin-bottom: 4px; }
+    .concerns-title {
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: .08em; color: #475569; margin-bottom: 5px;
+    }
+    .concern-tag {
+      display: inline-block;
+      background: #1e1e3a; border: 1px solid #2d2d50;
+      border-radius: 6px; padding: 3px 8px;
+      font-size: 11px; color: #94a3b8;
+      margin: 0 4px 4px 0;
+    }
+
+    /* Error */
+    .error-card {
+      background: #2d0a0a; border: 1px solid #991b1b;
+      border-radius: 10px; padding: 14px 16px;
+      color: #f87171; font-size: 13px; line-height: 1.5;
+    }
+    .error-card strong { display: block; margin-bottom: 4px; font-size: 14px; }
+
+    /* Hidden */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">☪</div>
+    <div class="header-text">
+      <h1>HalalCheck</h1>
+      <p>AI Dietary Compliance Checker</p>
+    </div>
+  </div>
+
+  <!-- Product name -->
+  <div class="product-section">
+    <div class="product-label">Detected Product</div>
+    <div class="product-name loading" id="productName">Scanning page…</div>
+  </div>
+
+  <!-- Result area -->
+  <div class="result-area" id="resultArea">
+    <!-- Loading -->
+    <div class="spinner-wrap" id="loadingView">
+      <div class="spinner"></div>
+      <div class="spinner-text">Checking with Groq AI…</div>
+    </div>
+
+    <!-- Verdict (populated by JS) -->
+    <div id="verdictView" class="hidden">
+      <div class="verdict-card" id="verdictCard">
+        <div class="verdict-icon" id="verdictIcon"></div>
+        <div class="verdict-label" id="verdictLabel"></div>
+      </div>
+
+      <div class="badges" id="badges"></div>
+
+      <div class="explanation" id="explanation"></div>
+
+      <div class="concerns-wrap hidden" id="concernsWrap">
+        <div class="concerns-title">⚠ Concerns</div>
+        <div id="concernsList"></div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="errorView" class="hidden">
+      <div class="error-card">
+        <strong>Something went wrong</strong>
+        <span id="errorMsg"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
